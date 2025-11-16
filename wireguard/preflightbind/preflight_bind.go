@@ -229,43 +229,43 @@ func wrapInIKEv2Header(payload []byte) []byte {
 	header := make([]byte, 0, int(totalLength))
 
 	// ===== IKEv2 Header (28 bytes) =====
-	header = append(header, initiatorSPI...)             // 8 bytes: Initiator SPI
-	header = append(header, responderSPI...)             // 8 bytes: Responder SPI
-	header = append(header, 0x21)                        // 1 byte: Next Payload (Security Association)
-	header = append(header, 0x20)                        // 1 byte: Version 2.0
-	header = append(header, 0x22)                        // 1 byte: Exchange Type (IKE_SA_INIT)
-	header = append(header, 0x08)                        // 1 byte: Flags (Initiator)
-	header = append(header, 0x00, 0x00, 0x00, 0x00)      // 4 bytes: Message ID
-	header = append(header, byte(totalLength>>24))       // 4 bytes: Total Length (big-endian)
+	header = append(header, initiatorSPI...)        // 8 bytes: Initiator SPI
+	header = append(header, responderSPI...)        // 8 bytes: Responder SPI
+	header = append(header, 0x21)                   // 1 byte: Next Payload (Security Association)
+	header = append(header, 0x20)                   // 1 byte: Version 2.0
+	header = append(header, 0x22)                   // 1 byte: Exchange Type (IKE_SA_INIT)
+	header = append(header, 0x08)                   // 1 byte: Flags (Initiator)
+	header = append(header, 0x00, 0x00, 0x00, 0x00) // 4 bytes: Message ID
+	header = append(header, byte(totalLength>>24))  // 4 bytes: Total Length (big-endian)
 	header = append(header, byte(totalLength>>16))
 	header = append(header, byte(totalLength>>8))
 	header = append(header, byte(totalLength))
 
 	// ===== Security Association Payload (24 bytes minimum) =====
-	saPayloadLength := uint16(24 + len(payload))         // SA payload length including data
-	
+	saPayloadLength := uint16(24 + len(payload)) // SA payload length including data
+
 	// SA Payload Header (4 bytes)
-	header = append(header, 0x00)                        // 1 byte: Next Payload (last one)
-	header = append(header, 0x00)                        // 1 byte: Critical + Reserved
-	header = append(header, byte(saPayloadLength>>8))    // 2 bytes: Payload Length (big-endian)
+	header = append(header, 0x00)                     // 1 byte: Next Payload (last one)
+	header = append(header, 0x00)                     // 1 byte: Critical + Reserved
+	header = append(header, byte(saPayloadLength>>8)) // 2 bytes: Payload Length (big-endian)
 	header = append(header, byte(saPayloadLength))
 
 	// SA Proposal (20 bytes - minimal proposal structure)
-	header = append(header, 0x00)                        // 1 byte: Last proposal
-	header = append(header, 0x00)                        // 1 byte: Reserved
-	header = append(header, 0x00, 0x14)                  // 2 bytes: Proposal Length (20 bytes)
-	header = append(header, 0x01)                        // 1 byte: Proposal number
-	header = append(header, 0x01)                        // 1 byte: Protocol ID (IKE)
-	header = append(header, 0x00)                        // 1 byte: SPI Size
-	header = append(header, 0x04)                        // 1 byte: Number of transforms
-	
+	header = append(header, 0x00)       // 1 byte: Last proposal
+	header = append(header, 0x00)       // 1 byte: Reserved
+	header = append(header, 0x00, 0x14) // 2 bytes: Proposal Length (20 bytes)
+	header = append(header, 0x01)       // 1 byte: Proposal number
+	header = append(header, 0x01)       // 1 byte: Protocol ID (IKE)
+	header = append(header, 0x00)       // 1 byte: SPI Size
+	header = append(header, 0x04)       // 1 byte: Number of transforms
+
 	// Transform substructures (12 bytes for 4 minimal transforms)
 	// Transform 1 (Encryption)
-	header = append(header, 0x03, 0x00, 0x00, 0x08)      // 4 bytes: More transforms, length 8
-	header = append(header, 0x01, 0x00, 0x00, 0x0c)      // 4 bytes: Type 1 (ENCR), ID 12 (AES-CBC)
-	
+	header = append(header, 0x03, 0x00, 0x00, 0x08) // 4 bytes: More transforms, length 8
+	header = append(header, 0x01, 0x00, 0x00, 0x0c) // 4 bytes: Type 1 (ENCR), ID 12 (AES-CBC)
+
 	// Remaining 4 bytes for minimal transform data
-	header = append(header, 0x00, 0x00, 0x00, 0x00)      // 4 bytes: padding/reserved
+	header = append(header, 0x00, 0x00, 0x00, 0x00) // 4 bytes: padding/reserved
 
 	// Append actual payload after the 52-byte header
 	header = append(header, payload...)
