@@ -23,9 +23,9 @@ import (
 func usermodeTunTest(ctx context.Context, l *slog.Logger, tnet *netstack.Net, url string) error {
 	// Wait a bit after handshake to ensure connection is stable
 	time.Sleep(2 * time.Second)
-	
+
 	l.Info("testing connectivity", "url", url)
-	
+
 	client := http.Client{
 		Timeout: 15 * time.Second,
 		Transport: &http.Transport{
@@ -100,7 +100,7 @@ func establishWireguard(l *slog.Logger, conf *wiresocks.Configuration, tunDev wg
 		request.WriteString(fmt.Sprintf("persistent_keepalive_interval=%d\n", peer.KeepAlive))
 		request.WriteString(fmt.Sprintf("preshared_key=%s\n", peer.PreSharedKey))
 		request.WriteString(fmt.Sprintf("endpoint=%s\n", peer.Endpoint))
-		
+
 		// Only set trick if AtomicNoize is not being used
 		if AtomicNoizeConfig == nil {
 			request.WriteString(fmt.Sprintf("trick=%s\n", t))
@@ -108,7 +108,7 @@ func establishWireguard(l *slog.Logger, conf *wiresocks.Configuration, tunDev wg
 			// Set trick to empty/t0 to disable old obfuscation when using AtomicNoize
 			request.WriteString("trick=t0\n")
 		}
-		
+
 		request.WriteString(fmt.Sprintf("reserved=%d,%d,%d\n", peer.Reserved[0], peer.Reserved[1], peer.Reserved[2]))
 
 		for _, cidr := range peer.AllowedIPs {
@@ -118,7 +118,7 @@ func establishWireguard(l *slog.Logger, conf *wiresocks.Configuration, tunDev wg
 
 	// Create the appropriate bind based on configuration
 	var bind conn.Bind
-	
+
 	// If proxy address is provided, create a proxy-aware bind
 	if proxyAddress != "" {
 		l.Info("using SOCKS proxy for WireGuard traffic", "proxy", proxyAddress)
@@ -126,11 +126,11 @@ func establishWireguard(l *slog.Logger, conf *wiresocks.Configuration, tunDev wg
 	} else {
 		bind = conn.NewDefaultBind()
 	}
-	
+
 	// If AtomicNoizeConfig configuration is provided, wrap the bind
 	if AtomicNoizeConfig != nil {
 		l.Info("using AtomicNoize WireGuard obfuscation")
-		
+
 		// Extract port from the first peer endpoint
 		preflightPort := 443 // default fallback
 		if len(conf.Peers) > 0 && conf.Peers[0].Endpoint != "" {
@@ -141,12 +141,12 @@ func establishWireguard(l *slog.Logger, conf *wiresocks.Configuration, tunDev wg
 				}
 			}
 		}
-		
+
 		l.Info("using preflight port", "port", preflightPort)
 		amnesiaBind, err := preflightbind.NewWithAtomicNoize(
 			bind, // Use the already created bind instead of creating a new one
 			AtomicNoizeConfig,
-			preflightPort, // extracted port for preflight packets
+			preflightPort,        // extracted port for preflight packets
 			100*time.Millisecond, // minimum interval between preflights (reduced from 1 second)
 		)
 		if err != nil {
@@ -180,4 +180,3 @@ func establishWireguard(l *slog.Logger, conf *wiresocks.Configuration, tunDev wg
 
 	return nil
 }
-

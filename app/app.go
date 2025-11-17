@@ -22,20 +22,20 @@ const singleMTU = 1330
 const doubleMTU = 1280 // minimum mtu for IPv6, may cause frag reassembly somewhere
 
 type WarpOptions struct {
-	Bind            netip.AddrPort
-	Endpoint        string
-	License         string
-	DnsAddr         netip.Addr
-	Psiphon         *PsiphonOptions
-	Gool            bool
-	Scan            *wiresocks.ScanOptions
-	CacheDir        string
-	FwMark          uint32
-	WireguardConfig string
-	Reserved        string
-	TestURL         string
-	AtomicNoizeConfig   *preflightbind.AtomicNoizeConfig
-	ProxyAddress    string
+	Bind              netip.AddrPort
+	Endpoint          string
+	License           string
+	DnsAddr           netip.Addr
+	Psiphon           *PsiphonOptions
+	Gool              bool
+	Scan              *wiresocks.ScanOptions
+	CacheDir          string
+	FwMark            uint32
+	WireguardConfig   string
+	Reserved          string
+	TestURL           string
+	AtomicNoizeConfig *preflightbind.AtomicNoizeConfig
+	ProxyAddress      string
 }
 
 type PsiphonOptions struct {
@@ -471,4 +471,3 @@ func generateWireguardConfig(i *warp.Identity) wiresocks.Configuration {
 		}},
 	}
 }
-
