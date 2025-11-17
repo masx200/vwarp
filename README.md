@@ -1,9 +1,16 @@
 # Warp-Plus
 
 Warp-Plus is an open-source implementation of Cloudflare's Warp, enhanced with Psiphon integration for circumventing censorship. This project aims to provide a robust and cross-platform VPN solution that can use psiphon on top of warp and warp-in-warp for changing the user virtual nat location.
+<div align="center">
+
+<img src="https://github.com/voidr3aper-anon/Vwarp/blob/master/logo/logo.png" width="350" alt="Vwarp Logo" />
+
 
 **Maintainer**: [voidreaper](https://github.com/voidr3aper-anon)
 
+**Check out the telegram channel**: 📱 [Telegram Channel](https://t.me/VoidVerge)
+
+</div>
 ## 🚀 Quick Start
 
 ```bash
