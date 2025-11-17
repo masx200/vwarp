@@ -9,7 +9,7 @@ AtomicNoize is an advanced WireGuard obfuscation protocol that makes your VPN tr
 ## ✨ Key Features
 
 ### 🎭 Protocol Imitation
-- **IKEv2/IPsec Mimicry**: Wraps packets inspecial headers to disguise WireGuard traffic as IPsec/IKEv2 VPN traffic
+- **IKEv2/IPsec Mimicry**: Wraps packets in special headers to disguise WireGuard traffic as IPsec/IKEv2 VPN traffic
 - **Signature Packets (I1-I5)**: Sends configurable signature packets that mimic legitimate VPN handshakes
 
 ### 🌊 Traffic Obfuscation
