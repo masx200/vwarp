@@ -197,4 +197,4 @@ bash <(curl -fsSL https://raw.githubusercontent.com/bepass-org/warp-plus/master/
 
 This repository is a fork of [Original Project] (MIT licensed).
 Original files are © their respective authors and remain under the MIT License.
-All additional changes and new files in this fork are © Your Name and licensed under [LICENSE-GPL-3.0], see LICENSE-GPL-3.0.
+All additional changes and new files in this fork are © voidreaper and licensed under [LICENSE-GPL-3.0], see LICENSE-GPL-3.0. all new feature tricks and ideas are not allowed to copy or pull from this  repo to the main repo or other similar project unless the maintainers have granted permission.
