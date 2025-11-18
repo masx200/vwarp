@@ -198,3 +198,7 @@ bash <(curl -fsSL https://raw.githubusercontent.com/bepass-org/warp-plus/master/
 This repository is a fork of [warp-plus] (MIT licensed).
 Original files are © their respective authors and remain under the MIT License.
 All additional changes and new files in this fork are © voidreaper and licensed under [LICENSE-GPL-3.0], see LICENSE-GPL-3.0. all new feature tricks and ideas are not allowed to copy or pull from this  repo to the main repo or other similar project unless the maintainers have granted permission.
+
+
+## Moto 
+ Beside Licensing , we honor the main developer of the code yousef Ghobadi ,and We coutinue the way of actively help the people access internet of freedom. We are legion. 
