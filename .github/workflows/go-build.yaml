@@ -98,7 +98,7 @@ jobs:
         run: |
           pushd ./vwarp_${{ env.ASSET_NAME }} || exit 1
           touch -mt $(date +%Y01010000) *
-          zip -9vr ../warp-plus_${{ env.ASSET_NAME }}.zip .
+          zip -9vr ../vwarp_${{ env.ASSET_NAME }}.zip .
           popd || exit 1
           FILE=./vwarp_${{ env.ASSET_NAME }}.zip
           DGST=$FILE.dgst
