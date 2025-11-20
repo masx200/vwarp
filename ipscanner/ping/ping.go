@@ -2,8 +2,9 @@ package ping
 
 import (
 	"context"
-	"github.com/bepass-org/vwarp/ipscanner/statute"
 	"net/netip"
+
+	"github.com/bepass-org/vwarp/ipscanner/statute"
 )
 
 type Ping struct {

@@ -8,10 +8,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/fatih/color"
 	"github.com/bepass-org/vwarp/ipscanner"
 	"github.com/bepass-org/vwarp/ipscanner/statute"
 	"github.com/bepass-org/vwarp/warp"
+	"github.com/fatih/color"
 	"github.com/rodaine/table"
 )
 
