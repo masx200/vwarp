@@ -5,17 +5,20 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
+	"crypto/tls"
 	"crypto/x509"
-	"crypto/x509/pkix"
 	"encoding/base64"
 	"fmt"
 	"log/slog"
 	"math/big"
 	"net"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/bepass-org/vwarp/masque/noize"
 
 	connectip "github.com/Diniboy1123/connect-ip-go"
 	"github.com/Diniboy1123/usque/api"
@@ -61,6 +64,8 @@ type AdapterConfig struct {
 	Logger *slog.Logger
 	// License key for WARP+ (optional)
 	License string
+	// NoizeConfig for QUIC obfuscation (optional)
+	NoizeConfig *noize.NoizeConfig
 }
 
 // NewMasqueAdapter creates a new MASQUE adapter using usque library
@@ -195,10 +200,41 @@ func NewMasqueAdapter(ctx context.Context, cfg AdapterConfig) (*MasqueAdapter, e
 		return nil, fmt.Errorf("failed to generate certificate: %w", err)
 	}
 
-	// Prepare TLS config with proper verification
-	tlsConfig, err := api.PrepareTlsConfig(privKey, peerPubKey, [][]byte{certDER}, sni)
-	if err != nil {
-		return nil, fmt.Errorf("failed to prepare TLS config: %w", err)
+	// Check if using a custom endpoint (different from registered)
+	usingCustomEndpoint := false
+	if cfg.Endpoint != "" {
+		registeredEndpoint := usqueConfig.EndpointV4
+		if cfg.UseIPv6 && usqueConfig.EndpointV6 != "" {
+			registeredEndpoint = usqueConfig.EndpointV6
+		}
+		customHost, _, _ := net.SplitHostPort(endpointAddr)
+		if customHost != registeredEndpoint {
+			usingCustomEndpoint = true
+			cfg.Logger.Warn("Using custom endpoint - disabling public key pinning", "custom", customHost, "registered", registeredEndpoint)
+		}
+	}
+
+	// Prepare TLS config
+	var tlsConfig *tls.Config
+	if usingCustomEndpoint {
+		// Skip peer verification for custom endpoints
+		tlsConfig = &tls.Config{
+			Certificates: []tls.Certificate{
+				{
+					Certificate: [][]byte{certDER},
+					PrivateKey:  privKey,
+				},
+			},
+			ServerName:         sni,
+			NextProtos:         []string{"h3"},
+			InsecureSkipVerify: true, // Accept any Cloudflare cert
+		}
+	} else {
+		// Use normal verification with public key pinning
+		tlsConfig, err = api.PrepareTlsConfig(privKey, peerPubKey, [][]byte{certDER}, sni)
+		if err != nil {
+			return nil, fmt.Errorf("failed to prepare TLS config: %w", err)
+		}
 	}
 
 	// Parse endpoint
@@ -242,12 +278,39 @@ func NewMasqueAdapter(ctx context.Context, cfg AdapterConfig) (*MasqueAdapter, e
 	// Log the actual QUIC dial attempt
 	cfg.Logger.Info("About to call api.ConnectTunnel - this will attempt QUIC dial")
 
-	// Establish tunnel using usque API
-	conn, transport, ipConn, _, err := api.ConnectTunnel(connCtx, tlsConfig, quicConfig, ConnectURI, udpAddr)
+	// Establish tunnel - use custom function with noize if configured
+	var conn *net.UDPConn
+	var transport *http3.Transport
+	var ipConn *connectip.Conn
+	var rsp *http.Response
+
+	if cfg.NoizeConfig != nil {
+		cfg.Logger.Info("Using noize obfuscation for MASQUE connection")
+		conn, transport, ipConn, rsp, err = ConnectTunnelWithNoize(connCtx, tlsConfig, quicConfig, ConnectURI, udpAddr, cfg.NoizeConfig)
+	} else {
+		conn, transport, ipConn, rsp, err = api.ConnectTunnel(connCtx, tlsConfig, quicConfig, ConnectURI, udpAddr)
+	}
+
 	if err != nil {
 		cfg.Logger.Error("QUIC connection failed", "error", err, "endpoint", udpAddr.String(), "errorType", fmt.Sprintf("%T", err))
 		return nil, fmt.Errorf("failed to establish MASQUE tunnel: %w", err)
 	}
+
+	// Check response status
+	if rsp != nil && rsp.StatusCode != 200 {
+		cfg.Logger.Error("MASQUE tunnel rejected", "status", rsp.StatusCode, "statusText", rsp.Status)
+		if ipConn != nil {
+			ipConn.Close()
+		}
+		if conn != nil {
+			conn.Close()
+		}
+		if transport != nil {
+			transport.Close()
+		}
+		return nil, fmt.Errorf("MASQUE tunnel connection failed: %s", rsp.Status)
+	}
+
 	cfg.Logger.Debug("QUIC connection established", "conn", conn != nil, "transport", transport != nil, "ipConn", ipConn != nil)
 
 	// Store connection type for proper cleanup
@@ -362,14 +425,12 @@ func stripPortSuffix(endpoint string) string {
 
 // generateSelfSignedCert generates a self-signed certificate for Connect-IP authentication
 func generateSelfSignedCert(privKey *ecdsa.PrivateKey) ([]byte, error) {
+	// Use minimal certificate template to match usque implementation
+	// Cloudflare's MASQUE servers expect a simple self-signed cert
 	template := &x509.Certificate{
-		SerialNumber:          big.NewInt(1),
-		Subject:               pkix.Name{CommonName: "vwarp-masque"},
-		NotBefore:             time.Now(),
-		NotAfter:              time.Now().Add(365 * 24 * time.Hour),
-		KeyUsage:              x509.KeyUsageDigitalSignature,
-		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth},
-		BasicConstraintsValid: true,
+		SerialNumber: big.NewInt(0),
+		NotBefore:    time.Now(),
+		NotAfter:     time.Now().Add(1 * 24 * time.Hour),
 	}
 
 	certDER, err := x509.CreateCertificate(rand.Reader, template, template, &privKey.PublicKey, privKey)

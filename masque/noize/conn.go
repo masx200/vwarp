@@ -137,19 +137,18 @@ func (c *NoizeUDPConn) GetConfig() *NoizeConfig {
 // LightObfuscationConfig - minimal obfuscation, low overhead
 func LightObfuscationConfig() *NoizeConfig {
 	return &NoizeConfig{
-		I1:              "<b 0d0a0d0a>",
-		FragmentInitial: false,
-		PaddingMin:      8,
-		PaddingMax:      16,
+		I1:              "", // No signature packet to keep it simple
+		FragmentInitial: false, // Don't fragment to avoid breaking handshake
+		PaddingMin:      4,
+		PaddingMax:      12,
 		RandomPadding:   true,
-		Jc:              2,
-		Jmin:            32,
-		Jmax:            64,
-		JcBeforeHS:      1,
-		JcAfterI1:       1,
-		JunkInterval:    2 * time.Millisecond,
-		HandshakeDelay:  5 * time.Millisecond,
-		MimicProtocol:   "h3",
+		Jc:              0, // No junk packets
+		JcBeforeHS:      0,
+		JcAfterI1:       0,
+		JcDuringHS:      0,
+		JcAfterHS:       0,
+		HandshakeDelay:  0, // No delay
+		MimicProtocol:   "", // No protocol mimicry
 	}
 }
 
@@ -275,5 +274,18 @@ func NoObfuscationConfig() *NoizeConfig {
 		PaddingMin:      0,
 		PaddingMax:      0,
 		HandshakeDelay:  0,
+	}
+}
+
+// MinimalObfuscationConfig - very light obfuscation, least likely to break handshake
+func MinimalObfuscationConfig() *NoizeConfig {
+	return &NoizeConfig{
+		// Just add simple padding, no fragmentation or junk packets
+		PaddingMin:      0,
+		PaddingMax:      0,
+		RandomPadding:   true,
+		Jc:              10,   // No junk packets
+		FragmentInitial: true, // Don't fragment
+		HandshakeDelay:  5,    // No delay
 	}
 }

@@ -65,6 +65,10 @@ type rootConfig struct {
 	AtomicNoizeAllowZeroSize  bool
 	AtomicNoizeHandshakeDelay time.Duration
 
+	// MASQUE Noize configuration
+	masqueNoize       bool
+	masqueNoizePreset string
+
 	// SOCKS proxy configuration
 	proxyAddress string
 }
@@ -132,6 +136,16 @@ func newRootCmd() *rootConfig {
 		LongName: "masque-preferred",
 		Value:    ffval.NewValueDefault(&cfg.masquePreferred, false),
 		Usage:    "prefer MASQUE over WireGuard (with automatic fallback)",
+	})
+	cfg.flags.AddFlag(ff.FlagConfig{
+		LongName: "masque-noize",
+		Value:    ffval.NewValueDefault(&cfg.masqueNoize, false),
+		Usage:    "enable MASQUE QUIC obfuscation (helps bypass DPI/censorship)",
+	})
+	cfg.flags.AddFlag(ff.FlagConfig{
+		LongName: "masque-noize-preset",
+		Value:    ffval.NewValueDefault(&cfg.masqueNoizePreset, "medium"),
+		Usage:    "MASQUE noize preset: light, medium, heavy, stealth, gfw (default: medium)",
 	})
 	cfg.flags.AddFlag(ff.FlagConfig{
 		LongName: "cfon",
@@ -344,6 +358,8 @@ func (c *rootConfig) exec(ctx context.Context, args []string) error {
 		Masque:             c.masque,
 		MasqueAutoFallback: c.masqueAutoFallback,
 		MasquePreferred:    c.masquePreferred,
+		MasqueNoize:        c.masqueNoize,
+		MasqueNoizePreset:  c.masqueNoizePreset,
 		FwMark:             c.fwmark,
 		WireguardConfig:    c.wgConf,
 		Reserved:           c.reserved,

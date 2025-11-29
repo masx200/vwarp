@@ -13,6 +13,7 @@ import (
 
 	"github.com/bepass-org/vwarp/iputils"
 	"github.com/bepass-org/vwarp/masque"
+	"github.com/bepass-org/vwarp/masque/noize"
 	"github.com/bepass-org/vwarp/psiphon"
 	"github.com/bepass-org/vwarp/warp"
 	"github.com/bepass-org/vwarp/wireguard/preflightbind"
@@ -34,6 +35,8 @@ type WarpOptions struct {
 	Masque             bool
 	MasqueAutoFallback bool // Automatically fallback to WireGuard if MASQUE fails
 	MasquePreferred    bool // Prefer MASQUE over WireGuard when both are available
+	MasqueNoize        bool // Enable MASQUE noize obfuscation
+	MasqueNoizePreset  string // Noize preset: light, medium, heavy, stealth, gfw
 	Scan               *wiresocks.ScanOptions
 	CacheDir           string
 	FwMark             uint32
@@ -508,12 +511,46 @@ func runWarpWithMasque(ctx context.Context, l *slog.Logger, opts WarpOptions, en
 	// Create MASQUE adapter using usque library
 	masqueConfigPath := path.Join(opts.CacheDir, "masque_config.json")
 	l.Debug("Creating MASQUE adapter", "masqueEndpoint", masqueEndpoint, "configPath", masqueConfigPath)
+	
+	// Configure noize obfuscation if enabled
+	var noizeConfig *noize.NoizeConfig
+	if opts.MasqueNoize {
+		preset := opts.MasqueNoizePreset
+		if preset == "" {
+			preset = "medium"
+		}
+		
+		l.Info("Enabling MASQUE noize obfuscation", "preset", preset)
+		
+		switch preset {
+		case "minimal":
+			noizeConfig = noize.MinimalObfuscationConfig()
+		case "light":
+			noizeConfig = noize.LightObfuscationConfig()
+		case "medium":
+			noizeConfig = noize.MediumObfuscationConfig()
+		case "heavy":
+			noizeConfig = noize.HeavyObfuscationConfig()
+		case "stealth":
+			noizeConfig = noize.StealthObfuscationConfig()
+		case "gfw":
+			noizeConfig = noize.GFWBypassConfig()
+		case "none":
+			noizeConfig = nil
+			l.Info("Noize disabled (preset=none)")
+		default:
+			l.Warn("Unknown noize preset, using medium", "preset", preset)
+			noizeConfig = noize.MediumObfuscationConfig()
+		}
+	}
+	
 	adapter, err := masque.NewMasqueAdapter(ctx, masque.AdapterConfig{
-		ConfigPath: masqueConfigPath,
-		DeviceName: "vwarp-masque",
-		Endpoint:   masqueEndpoint,
-		Logger:     l,
-		License:    opts.License,
+		ConfigPath:  masqueConfigPath,
+		DeviceName:  "vwarp-masque",
+		Endpoint:    masqueEndpoint,
+		Logger:      l,
+		License:     opts.License,
+		NoizeConfig: noizeConfig,
 	})
 	if err != nil {
 		return fmt.Errorf("failed to establish MASQUE connection: %w", err)
