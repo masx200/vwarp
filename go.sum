@@ -11,6 +11,8 @@ github.com/BurntSushi/toml v1.4.1-0.20240526193622-a339e1f7089c h1:pxW6RcqyfI9/k
 github.com/BurntSushi/toml v1.4.1-0.20240526193622-a339e1f7089c/go.mod h1:ukJfTF/6rtPPRCnwkur4qwRxa8vTRFBF0uk2lLoLwho=
 github.com/Diniboy1123/connect-ip-go v0.0.0-20251011145655-7be32d5976d9 h1:+0wdi3fTeWM+XZH8s3mJ6RuG3tfx9yj9WFbEhupcA6k=
 github.com/Diniboy1123/connect-ip-go v0.0.0-20251011145655-7be32d5976d9/go.mod h1:7N+URwxiIxNn21j8f67tXvG26tvxzw81lVhtLIb0ynE=
+github.com/Diniboy1123/usque v1.4.2 h1:T9FzxmJ7ZuLl3k2A6DrsYCGYb7g2UTC6AXkgIGuRUec=
+github.com/Diniboy1123/usque v1.4.2/go.mod h1:fVujcHnqAKTEdS6Au/sJmVRp8iwHxOt07ut5zTs142U=
 github.com/Jigsaw-Code/outline-sdk v0.0.16 h1:WbHmv80FKDIpzEmR3GehTbq5CibYTLvcxIIpMMILiEs=
 github.com/Jigsaw-Code/outline-sdk v0.0.16/go.mod h1:e1oQZbSdLJBBuHgfeQsgEkvkuyIePPwstUeZRGq0KO8=
 github.com/Jigsaw-Code/outline-ss-server v1.8.0 h1:6h7CZsyl1vQLz3nvxmL9FbhDug4QxJ1YTxm534eye1E=

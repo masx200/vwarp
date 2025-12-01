@@ -9,7 +9,7 @@ replace github.com/eycorsican/go-tun2socks => github.com/trojan-gfw/go-tun2socks
 
 require (
 	github.com/Diniboy1123/connect-ip-go v0.0.0-20251011145655-7be32d5976d9
-	github.com/Diniboy1123/usque v0.0.0-00010101000000-000000000000
+	github.com/Diniboy1123/usque v1.4.2
 	github.com/Psiphon-Labs/psiphon-tunnel-core v1.0.11-0.20251029164303-aa4d266ae982
 	github.com/adrg/xdg v0.5.3
 	github.com/avast/retry-go v3.0.0+incompatible
