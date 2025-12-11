@@ -25,32 +25,32 @@ type rootConfig struct {
 	flags   *ff.FlagSet
 	command *ff.Command
 
-	verbose            bool
-	v4                 bool
-	v6                 bool
-	bind               string
-	endpoint           string
-	key                string
-	dns                string
-	gool               bool
-	psiphon            bool
+	verbose         bool
+	v4              bool
+	v6              bool
+	bind            string
+	endpoint        string
+	key             string
+	dns             string
+	gool            bool
+	psiphon         bool
 	masque          bool
 	masquePreferred bool
-	country            string
-	scan               bool
-	rtt                time.Duration
-	cacheDir           string
-	fwmark             uint32
-	reserved           string
-	wgConf             string
-	testUrl            string
-	config             string
+	country         string
+	scan            bool
+	rtt             time.Duration
+	cacheDir        string
+	fwmark          uint32
+	reserved        string
+	wgConf          string
+	testUrl         string
+	config          string
 
 	// Unified Noize configuration
-	noize                bool   // Enable noize for active protocol(s)
-	noizePreset          string // Unified preset for both WireGuard and MASQUE (minimal, light, medium, heavy, stealth, gfw, firewall)
-	noizeConfig          string // Path to unified noize configuration JSON file
-	noizeExport          string // Export preset to file path
+	noize       bool   // Enable noize for active protocol(s)
+	noizePreset string // Unified preset for both WireGuard and MASQUE (minimal, light, medium, heavy, stealth, gfw, firewall)
+	noizeConfig string // Path to unified noize configuration JSON file
+	noizeExport string // Export preset to file path
 
 	// Deprecated MASQUE Noize configuration (for backward compatibility)
 	masqueNoizeConfigOld string // Deprecated: use --noize-config
@@ -183,7 +183,6 @@ func newRootCmd() *rootConfig {
 		LongName:  "config",
 		Value:     ffval.NewValueDefault(&cfg.config, ""),
 	})
-
 
 	cfg.flags.AddFlag(ff.FlagConfig{
 		LongName: "proxy",
@@ -336,12 +335,10 @@ func (c *rootConfig) exec(ctx context.Context, args []string) error {
 	return nil
 }
 
-
-
 // buildUnifiedNoizeConfig creates a unified noize configuration from CLI flags
 func (c *rootConfig) buildUnifiedNoizeConfig() *noize.UnifiedNoizeConfig {
 	// If noize is not enabled, return nil
-	if !c.noize && c.noizeConfig == "" {
+	if !c.noize && c.noizeConfig == "" && c.noizePreset == "" {
 		return nil
 	}
 
@@ -358,7 +355,7 @@ func (c *rootConfig) buildUnifiedNoizeConfig() *noize.UnifiedNoizeConfig {
 	}
 
 	// Handle preset-based config
-	if c.noize {
+	if c.noize || c.noizePreset != "" {
 		config, err := loader.LoadFromPreset(c.noizePreset)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Warning: invalid noize preset %s: %v\n", c.noizePreset, err)

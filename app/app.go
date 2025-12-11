@@ -10,6 +10,7 @@ import (
 	"net/netip"
 	"path"
 	"sync"
+	"time"
 
 	"github.com/bepass-org/vwarp/config/noize"
 	"github.com/bepass-org/vwarp/iputils"
@@ -591,16 +592,40 @@ func runWarpWithMasque(ctx context.Context, l *slog.Logger, opts WarpOptions, en
 		}
 	}
 
-	adapter, err := masque.NewMasqueAdapter(ctx, masque.AdapterConfig{
-		ConfigPath:  masqueConfigPath,
-		DeviceName:  "vwarp-masque",
-		Endpoint:    masqueEndpoint,
-		Logger:      l,
-		License:     opts.License,
-		NoizeConfig: noizeConfig,
-	})
+	// Create MASQUE adapter with retry for Android connectivity issues
+	var adapter *masque.MasqueAdapter
+	var err error
+
+	// Try creating adapter with retries for Android initialization issues
+	for attempt := 1; attempt <= 3; attempt++ {
+		l.Debug("Creating MASQUE adapter", "attempt", attempt)
+
+		adapter, err = masque.NewMasqueAdapter(ctx, masque.AdapterConfig{
+			ConfigPath:  masqueConfigPath,
+			DeviceName:  "vwarp-masque",
+			Endpoint:    masqueEndpoint,
+			Logger:      l,
+			License:     opts.License,
+			NoizeConfig: noizeConfig,
+		})
+
+		if err == nil {
+			l.Info("MASQUE adapter created successfully", "attempt", attempt)
+			break
+		}
+
+		l.Warn("Failed to create MASQUE adapter", "attempt", attempt, "error", err)
+
+		// On Android, sometimes network interfaces need time to stabilize
+		if attempt < 3 {
+			retryDelay := time.Duration(attempt) * 2 * time.Second
+			l.Info("Retrying MASQUE adapter creation", "delay", retryDelay)
+			time.Sleep(retryDelay)
+		}
+	}
+
 	if err != nil {
-		return fmt.Errorf("failed to establish MASQUE connection: %w", err)
+		return fmt.Errorf("failed to establish MASQUE connection after retries: %w", err)
 	}
 	defer adapter.Close()
 
