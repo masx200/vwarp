@@ -345,7 +345,7 @@ vwarp --config docs/examples/sample-working.json --proxy socks5://127.0.0.1:1080
 - **[Production Deployment](../PRODUCTION_DEPLOYMENT.md)** - Enterprise deployment and monitoring
 - **[Complete Obfuscation Guide](../VWARP_OBFUSCATION_GUIDE.md)** - Technical details on obfuscation methods
 - **[SOCKS5 Proxy Guide](../SOCKS_PROXY_GUIDE.md)** - Double-VPN proxy chaining
-- **[Troubleshooting](#troubleshooting)** - Common issues and solutions
+- **[Troubleshooting](../../config/examples/README.md#troubleshooting)** - Common issues and solutions
 ```
 
 ## Customization
