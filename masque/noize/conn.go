@@ -31,36 +31,26 @@ func WrapUDPConn(conn *net.UDPConn, config *NoizeConfig) *NoizeUDPConn {
 
 // WriteToUDP writes obfuscated data to UDP
 func (c *NoizeUDPConn) WriteToUDP(b []byte, addr *net.UDPAddr) (int, error) {
+	if c.noize != nil && c.noize.debugPadding {
+		fmt.Printf("NOIZE_DEBUG: WriteToUDP called - size:%d, enabled:%t, addr:%s\n", len(b), c.enabled, addr.String())
+	}
+
 	if !c.enabled || c.noize == nil {
 		return c.UDPConn.WriteToUDP(b, addr)
 	}
 
+	// Check if all obfuscation is disabled
 	config := c.noize.config
 	if config.Jc == 0 && config.JcBeforeHS == 0 && config.JcAfterI1 == 0 &&
 		config.JcDuringHS == 0 && config.JcAfterHS == 0 && config.PaddingMax == 0 &&
 		!config.FragmentInitial && config.I1 == "" && config.I2 == "" {
-		if c.noize.debugPadding {
-			fmt.Printf("NOIZE_DEBUG: All obfuscation disabled, bypassing - packet size: %d\n", len(b))
-		}
 		return c.UDPConn.WriteToUDP(b, addr)
-	}
-
-	if c.noize.debugPadding {
-		fmt.Printf("NOIZE_DEBUG: WriteToUDP called - packet size: %d, addr: %s\n", len(b), addr.String())
 	}
 
 	// Obfuscate the packet
 	obfuscated, err := c.noize.ObfuscateWrite(b, addr)
 	if err != nil {
-		if c.noize.debugPadding {
-			fmt.Printf("NOIZE_DEBUG: ObfuscateWrite error: %v\n", err)
-		}
 		return 0, err
-	}
-
-	// Debug: Log result
-	if c.noize.debugPadding {
-		fmt.Printf("NOIZE_DEBUG: Packet obfuscated - original: %d bytes, final: %d bytes\n", len(b), len(obfuscated))
 	}
 
 	// Write obfuscated packet
@@ -69,9 +59,20 @@ func (c *NoizeUDPConn) WriteToUDP(b []byte, addr *net.UDPAddr) (int, error) {
 
 // WriteTo implements the WriterTo interface (used by QUIC)
 func (c *NoizeUDPConn) WriteTo(b []byte, addr net.Addr) (int, error) {
+	if c.noize != nil && c.noize.debugPadding {
+		fmt.Printf("NOIZE_DEBUG: WriteTo called - size:%d, addr:%s, addr_type:%T\n", len(b), addr.String(), addr)
+	}
+
 	udpAddr, ok := addr.(*net.UDPAddr)
 	if !ok {
+		if c.noize != nil && c.noize.debugPadding {
+			fmt.Printf("NOIZE_DEBUG: WriteTo - not UDP addr, falling back to direct write\n")
+		}
 		return c.UDPConn.WriteTo(b, addr)
+	}
+
+	if c.noize != nil && c.noize.debugPadding {
+		fmt.Printf("NOIZE_DEBUG: WriteTo - delegating to WriteToUDP\n")
 	}
 	return c.WriteToUDP(b, udpAddr)
 }
@@ -170,6 +171,14 @@ func (c *NoizeUDPConn) DisableDebugPadding() {
 	if c.noize != nil {
 		c.noize.DisableDebugPadding()
 	}
+}
+
+// DisableObfuscation disables all noize obfuscation
+// This should be called after tunnel establishment to prevent junk packets from flowing through the tunnel
+func (c *NoizeUDPConn) DisableObfuscation() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.enabled = false
 }
 
 // PresetConfigs provides preset obfuscation configurations

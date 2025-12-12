@@ -684,7 +684,7 @@ func runWarpWithMasque(ctx context.Context, l *slog.Logger, opts WarpOptions, en
 	}
 
 	// Start tunnel maintenance goroutine
-	go maintainMasqueTunnel(ctx, l, adapter, adapterFactory, tunAdapter, singleMTU)
+	go maintainMasqueTunnel(ctx, l, adapter, adapterFactory, tunAdapter, singleMTU, tnet, opts.TestURL)
 
 	// Test connectivity
 	if err := usermodeTunTest(ctx, l, tnet, opts.TestURL); err != nil {
