@@ -94,7 +94,7 @@ bash <(curl -fsSL https://raw.githubusercontent.com/bepass-org/vwarp/master/term
 
 ### 📦 Configuration & Setup
 - **[Configuration Guide & Examples](docs/CONFIG_FORGE.md)** - Complete configuration reference with ready-to-use examples
-- **[Sample Configuration Files](config/examples/)** - JSON config templates
+- **[Sample Configuration Files](docs/examples/)** - JSON config templates
 - **[Production Deployment](docs/PRODUCTION_DEPLOYMENT.md)** - Enterprise deployment, monitoring & scaling
 
 ### 🔗 Integration Guides  
@@ -110,7 +110,7 @@ vwarp supports both CLI flags and configuration files. For production use, confi
 **Quick Setup:**
 ```bash
 # Copy example config and customize
-cp config/examples/complete-config.json my-config.json
+cp docs/examples/sample-working.json my-config.json
 vwarp --config my-config.json --masque
 ```
 

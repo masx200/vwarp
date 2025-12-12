@@ -21,7 +21,7 @@ vwarp --config my-config.json --masque
 vwarp --masque --noize-preset moderate
 
 # Use complete template for custom setups
-cp config/examples/complete-config.json my-config.json
+cp docs/examples/sample-working.json my-config.json
 vwarp --config my-config.json --masque
 ```
 
@@ -55,10 +55,8 @@ vwarp --config my-config.json --masque
 - **Features**: Maximum obfuscation (Jc: 50+), full protocol mimicry
 - **Recommended for**: Last resort for strictest networks
 
-### `complete-config.json`
-- **Use case**: Reference configuration with all available options
-- **Contains**: Every possible configuration field with comments
-- **Purpose**: Template for creating custom configurations
+### Configuration Templates
+Use any of the above configurations as templates for creating custom configurations. The `sample-working.json` serves as the best starting point for most use cases.
 
 ## 🔧 Complete Configuration Reference
 
@@ -236,7 +234,7 @@ To customize configurations:
 2. Edit the `Jc` values (lower = faster, higher = more stealth)
 3. Test: `vwarp --config my-custom.json --masque --verbose`
 
-For detailed configuration options, see the [Configuration Guide](../../config/examples/README.md).
+For detailed configuration options, see this complete Configuration Guide.
 
 ## 📊 Performance Benchmarks
 
