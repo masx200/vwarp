@@ -526,4 +526,4 @@ done
 
 ---
 
-**Need Help?** Check the [Configuration Guide](../config/examples/README.md) and [Troubleshooting Section](../config/examples/README.md#troubleshooting) for more details.
+**Need Help?** Check the [Configuration Guide](CONFIG_FORGE.md) and [Troubleshooting Section](CONFIG_FORGE.md#troubleshooting) for more details.

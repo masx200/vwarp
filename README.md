@@ -18,22 +18,13 @@ vwarp is an open-source implementation of Cloudflare's Warp, enhanced with Psiph
 vwarp --bind 127.0.0.1:8086
 
 # MASQUE mode with obfuscation
-vwarp --masque --noize-preset moderate
+vwarp --masque --noize-preset light -e 162.159.198.1:443
 
-# WireGuard with AtomicNoize obfuscation
-vwarp --noize-preset heavy
-
-# Warp-in-Warp (location changing)
-vwarp --gool --key your-warp-license-key
-
-# Using unified configuration file (recommended)
-vwarp --config config/examples/complete-config.json --masque
-
-# Through SOCKS5 proxy (double-VPN)
-vwarp --proxy socks5://127.0.0.1:1080 --masque --noize-preset moderate
+# Using configuration file (recommended)
+vwarp --config my-config.json --masque
 ```
 
-📖 **Need help?** Check out the [Configuration Guide](config/examples/README.md) and [Complete Obfuscation Guide](docs/VWARP_OBFUSCATION_GUIDE.md)
+📖 **New to vwarp?** See the [Configuration Guide](docs/CONFIG_FORGE.md) for complete setup instructions.
 
 ## Features
 
@@ -54,142 +45,32 @@ vwarp --proxy socks5://127.0.0.1:1080 --masque --noize-preset moderate
 - [Download the latest version from the releases page](https://github.com/bepass-org/vwarp/releases)
 - Basic understanding of VPN and proxy configurations
 
-### Usage
+### Command Line Usage
 
-```
-COMMAND
-  vwarp
-
-SUBCOMMANDS
-  version   displays version
-
-FLAGS
-  -v, --verbose               enable verbose logging
-  -4, --ipv4                  only use IPv4 for random warp/MASQUE endpoint
-  -6                          only use IPv6 for random warp endpoint
-  -b, --bind STRING           socks bind address (default: 127.0.0.1:8086)
-  -e, --endpoint STRING       warp endpoint
-  -k, --key STRING            warp key
-      --dns STRING            DNS address (default: 1.1.1.1)
-      --gool                  enable gool mode (warp in warp)
-      --masque                enable MASQUE mode (connect to warp via MASQUE proxy)
-      --masque-preferred      prefer MASQUE over WireGuard (with automatic fallback)
-      --noize-preset STRING   noize preset: light, moderate, heavy (applies to active protocol)
-      --noize-export STRING   export preset to JSON file (e.g., --noize-export moderate:config.json)
-      --cfon                  enable psiphon mode (must provide country as well)
-      --country STRING        psiphon country code (default: AT)
-      --scan                  enable warp scanning
-      --rtt DURATION           (default: 1s)
-      --cache-dir STRING
-      --fwmark UINT32          (default: 0)
-      --reserved STRING
-      --wgconf STRING
-      --test-url STRING        (default: http://connectivity.cloudflareclient.com/cdn-cgi/trace)
-  -c, --config STRING
-      --proxy STRING          SOCKS5 proxy address to route WireGuard traffic through (e.g., socks5://127.0.0.1:1080)
-```
-
-### Basic Examples
-
-#### Standard WARP Connection
 ```bash
-vwarp --bind 127.0.0.1:8086
+# See all available options
+vwarp -h
+
+# Basic usage patterns
+vwarp --masque --noize-preset <preset>    # MASQUE with obfuscation
+vwarp --config <file> --masque            # Config file approach
+vwarp --gool --key <key>                  # Warp-in-Warp mode
 ```
 
-#### MASQUE Mode with Noize Obfuscation
-```bash
-# Light obfuscation (recommended for most users)
-vwarp --masque --noize-preset light
+For complete CLI reference and configuration options, see the [Configuration Guide](docs/CONFIG_FORGE.md).
 
-# Heavy obfuscation for strict censorship
-vwarp --masque --noize-preset heavy
+### Usage Examples
 
-# Using unified configuration file
-vwarp --config config/examples/complete-config.json --masque
-```
+For comprehensive usage examples and configuration scenarios, see:
+- **[Configuration Guide](docs/CONFIG_FORGE.md)** - Complete setup guide with examples
+- **[SOCKS5 Proxy Guide](docs/SOCKS_PROXY_GUIDE.md)** - Double-VPN proxy chaining
+- **[Production Deployment](docs/PRODUCTION_DEPLOYMENT.md)** - Enterprise setup and monitoring
 
-#### WireGuard with AtomicNoize Obfuscation
-```bash
-# Default WireGuard with moderate obfuscation
-vwarp --noize-preset moderate
+### Psiphon Integration
 
-# Heavy obfuscation for censored networks
-vwarp --noize-preset heavy --bind 127.0.0.1:8086
-```
+vwarp supports Psiphon for additional censorship circumvention. Use `--cfon --country <CODE>` where CODE is a two-letter country code (US, CA, DE, etc.).
 
-#### Through SOCKS5 Proxy (Double VPN)
-```bash
-# First, start your SOCKS5 proxy (e.g., SSH tunnel, VPN, etc.)
-# Then route WARP through it:
-vwarp --proxy socks5://127.0.0.1:1080 --bind 127.0.0.1:8086
-```
-
-#### With Psiphon for Censorship Circumvention
-```bash
-vwarp --cfon --country US --bind 127.0.0.1:8086
-```
-
-#### Warp-in-Warp (Change Location)
-```bash
-vwarp --gool --bind 127.0.0.1:8086
-```
-
-#### Maximum Privacy Setup
-```bash
-# Using CLI flags
-vwarp \
-  --proxy socks5://127.0.0.1:1080 \
-  --masque \
-  --noize-preset heavy \
-  --verbose
-
-# Using configuration file (recommended)
-vwarp --config my-stealth-config.json --proxy socks5://127.0.0.1:1080
-```
-
-#### Scan for Best Endpoint
-```bash
-vwarp --scan --rtt 800ms
-```
-
-For more detailed examples and configurations, see:
-- [Configuration Guide](config/examples/README.md) - Complete setup guide
-- [SOCKS5 Proxy Guide](docs/SOCKS_PROXY_GUIDE.md) - Double-VPN setups
-- [Obfuscation Guide](docs/VWARP_OBFUSCATION_GUIDE.md) - Advanced censorship bypass
-
-### Country Codes for Psiphon
-
-- Austria (AT)
-- Australia (AU)
-- Belgium (BE)
-- Bulgaria (BG)
-- Canada (CA)
-- Switzerland (CH)
-- Czech Republic (CZ)
-- Germany (DE)
-- Denmark (DK)
-- Estonia (EE)
-- Spain (ES)
-- Finland (FI)
-- France (FR)
-- United Kingdom (GB)
-- Croatia (HR)
-- Hungary (HU)
-- Ireland (IE)
-- India (IN)
-- Italy (IT)
-- Japan (JP)
-- Latvia (LV)
-- Netherlands (NL)
-- Norway (NO)
-- Poland (PL)
-- Portugal (PT)
-- Romania (RO)
-- Serbia (RS)
-- Sweden (SE)
-- Singapore (SG)
-- Slovakia (SK)
-- United States (US)
+For complete country code list, see the [Configuration Guide](docs/CONFIG_FORGE.md).
 ![0](https://raw.githubusercontent.com/Ptechgithub/configs/main/media/line.gif)
 ### Termux
 
@@ -212,99 +93,28 @@ bash <(curl -fsSL https://raw.githubusercontent.com/bepass-org/vwarp/master/term
 ## 📚 Documentation
 
 ### 📦 Configuration & Setup
-- **[Unified Configuration Guide](config/examples/README.md)** - Complete configuration reference with all options
-- **[Sample Configurations](config/examples/)** - Production-ready config examples  
-- **[Configuration Examples](docs/examples/README.md)** - Obfuscation configurations for different scenarios
+- **[Configuration Guide & Examples](docs/CONFIG_FORGE.md)** - Complete configuration reference with ready-to-use examples
+- **[Sample Configuration Files](config/examples/)** - JSON config templates
 - **[Production Deployment](docs/PRODUCTION_DEPLOYMENT.md)** - Enterprise deployment, monitoring & scaling
 
 ### 🔗 Integration Guides  
 - **[Complete Obfuscation Guide](docs/VWARP_OBFUSCATION_GUIDE.md)** - Advanced censorship bypass techniques
 - **[SOCKS5 Proxy Chaining](docs/SOCKS_PROXY_GUIDE.md)** - Double-VPN and proxy routing
 
-### 🚀 Quick Examples
 
-**Lightweight Setup (Fast)**
+
+## 🛠️ Configuration
+
+vwarp supports both CLI flags and configuration files. For production use, configuration files are recommended.
+
+**Quick Setup:**
 ```bash
-vwarp --masque --noize-preset light
+# Copy example config and customize
+cp config/examples/complete-config.json my-config.json
+vwarp --config my-config.json --masque
 ```
 
-**Balanced Setup (Recommended)**  
-```json
-// my-config.json
-{
-  "bind": "127.0.0.1:8086",
-  "endpoint": "162.159.192.1:2408", 
-  "masque": {
-    "enabled": true,
-    "config": {
-      "Jc": 15,
-      "MimicProtocol": "https",
-      "fragment_initial": true
-    }
-  }
-}
-```
-```bash
-vwarp --config my-config.json
-```
-
-**Maximum Stealth (Heavy Obfuscation)**
-```bash
-vwarp --config config/examples/complete-config.json --proxy socks5://127.0.0.1:1080
-```
-
-## 🛠️ Configuration Examples
-
-### Basic Configuration File
-```json
-{
-  "version": "1.0",
-  "bind": "127.0.0.1:8086",
-  "endpoint": "162.159.192.1:2408",
-  "key": "your-warp-license-key-here",
-  "dns": "1.1.1.1",
-  "masque": {
-    "enabled": true,
-    "config": {
-      "Jc": 15,
-      "MimicProtocol": "https",
-      "fragment_initial": true,
-      "RandomPadding": true
-    }
-  }
-}
-```
-
-### Usage with Config File
-```bash
-# Create config file
-cp config/examples/complete-config.json my-production.json
-
-# Edit your settings
-nano my-production.json
-
-# Run with MASQUE mode
-vwarp --config my-production.json --masque
-
-# Run with WireGuard mode (default)
-vwarp --config my-production.json
-
-# Run with Warp-in-Warp mode
-vwarp --config my-production.json --gool
-```
-
-### Key Configuration Fields
-
-| Field | Description | Example |
-|-------|-------------|----------|
-| `bind` | SOCKS5 proxy listen address | `"127.0.0.1:8086"` |
-| `endpoint` | Cloudflare WARP endpoint | `"162.159.192.1:2408"` |
-| `key` | WARP+ license key (optional) | `"your-key-here"` |
-| `proxy` | Upstream SOCKS5 proxy | `"socks5://127.0.0.1:1080"` |
-| `masque.enabled` | Enable MASQUE mode | `true` |
-| `wireguard.reserved` | Reserved bytes (decimal) | `"1,2,3"` |
-
-⚠️ **Important**: Reserved bytes must be in decimal format (`"1,2,3"`) not hex (`"0x01,0x02,0x03"`)
+**Complete configuration reference:** [Configuration Guide](docs/CONFIG_FORGE.md)
 
 ## Acknowledgements
 
